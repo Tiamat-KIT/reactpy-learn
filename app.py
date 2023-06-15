@@ -1,6 +1,6 @@
 from flask import Flask 
-from reactpy import component,html
-from reactpy.backend.flask import configure,Options,use_websocket
+from reactpy import component,html,run
+#from reactpy.backend.flask import configure,Options,use_websocket
 from simple_websocket import Client
 
 @component
@@ -12,14 +12,16 @@ def number_input(label):
 
 @component
 def form():
-    ws = Client("ws://localhost:5000")
     async def post(event):
         # print(event["target"]["elements"][0]["value"])
         ValueList = [x["value"] for x in event["target"]["elements"] if len(x["value"]) != 0]
+        # ws.send(ValueList)
+        # getbmi = ws.receive()
+        # print(getbmi)
+        print(ValueList)
+        bmi = float(ValueList[0]) / ((float(ValueList[1]) / 100)** 2)
+        print(bmi)
 
-        ws.send(ValueList)
-        getbmi = ws.receive()
-        print(getbmi)
 
     return html.form(
         {
@@ -34,18 +36,22 @@ def form():
 
 @component
 def layout():
-
-    WebSocket_Server = use_websocket()
-    data = WebSocket_Server.receive()
-    bmi = data[0] / (data[1] / 100)**2
-    WebSocket_Server.send(bmi)
+    # ws = Client("http://localhost:5000")
+    
 
     return html.div(
         html.h1("Title"),
         form(),
+        html.div({"id": "result","style": "padding: 5px"},["結果:"])
     )
 
-app = Flask(__name__)
-@app.route("/",websocket=True)
-def Server
-configure(app,layout,Options(cors=True))
+run(layout)
+#app = Flask(__name__)
+
+#@app.route("/",websocket=True)
+#def server():
+    #configure(app,layout,Options(cors=True))
+    #WebSocket_Server = use_websocket()
+    #data = WebSocket_Server.receive()
+    #bmi = data[0] / (data[1] / 100)**2
+    #WebSocket_Server.send(bmi)
